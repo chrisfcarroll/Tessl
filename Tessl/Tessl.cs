@@ -12,5 +12,11 @@ namespace unforgettablemeuk
         {
             return new T();
         }
+
+        public static T New<T,P1>(P1 p1) where T : new()
+        {
+            return (T)typeof(T).GetConstructor(new System.Type[] { typeof(P1) }).Invoke(new object[] { p1 });
+        }
+
     }
 }

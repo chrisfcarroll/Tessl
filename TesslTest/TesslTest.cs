@@ -57,16 +57,6 @@ namespace TesslTest
         //
         #endregion
 
-
-        public void NewTestHelper<T>()
-            where T : new()
-        {
-            T expected = new T(); // TODO: Initialize to an appropriate value
-            T actual;
-            actual = Tessl.New<T>();
-            Assert.AreEqual(expected, actual);
-        }
-
         [TestMethod()]
         public void NewShouldConstructNewObjectWhenInStandardModeTest()
         {
@@ -83,9 +73,29 @@ namespace TesslTest
             comparer.IgnoreIndexersWhichCantBeCompared = true;
             //
             Assert.IsTrue( comparer.Compare(expected2, actual2), comparer.DifferencesString);
-
         }
 
+        [TestMethod()]
+        public void NewWith1ParameterShouldConstructNewObjectWhenInStandardModeTest()
+        {
+            decimal expected = new decimal(123.45);
+            decimal actual   = Tessl.New<decimal, double>( 123.45 );
+            //
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+            //
+            Assert.IsTrue(comparer.Compare(actual, expected), comparer.DifferencesString);
+            Assert.AreEqual<decimal>(expected, actual);
+
+            //try a class with plenty of fields
+            string aFilename = "filename";
+            var expected2 = new System.Diagnostics.ProcessStartInfo(aFilename);
+            var actual2 = Tessl.New<System.Diagnostics.ProcessStartInfo, string>(aFilename);
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            //
+            Assert.IsTrue(comparer.Compare(expected2, actual2), comparer.DifferencesString);
+            Assert.AreEqual<string>(aFilename, expected2.FileName);
+            Assert.AreEqual<string>(aFilename, actual2.FileName);
+        }
     }
 }
 
