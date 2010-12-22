@@ -76,6 +76,14 @@ namespace TesslTest
             var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
             //
             Assert.IsTrue(comparer.Compare(actual, expected), comparer.DifferencesString);
+
+            //try a class with plenty of fields
+            var expected2 = new System.Diagnostics.ProcessStartInfo();
+            var actual2 = Tessl.New<System.Diagnostics.ProcessStartInfo>();
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            //
+            Assert.IsTrue( comparer.Compare(expected2, actual2), comparer.DifferencesString);
+
         }
 
     }

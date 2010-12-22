@@ -71,6 +71,9 @@ namespace KellermanSoftware.CompareNetObjects
 
         #region Properties
 
+        public bool IgnoreIndexersWhichCantBeCompared { get; set; }
+        
+        
         /// <summary>
         /// Ignore classes, properties, or fields by name during the comparison.
         /// Case sensitive.
@@ -718,30 +721,39 @@ namespace KellermanSoftware.CompareNetObjects
                 if (!CompareReadOnly && info.CanWrite == false)
                     continue;
 
-                if (!IsValidIndexer(info, object1, object2, breadCrumb))
+                try
                 {
-                    objectValue1 = info.GetValue(object1, null);
-                    objectValue2 = info.GetValue(object2, null);
+                    if (!IsValidIndexer(info, object1, object2, breadCrumb))
+                    {
+                        objectValue1 = info.GetValue(object1, null);
+                        objectValue2 = info.GetValue(object2, null);
+                    }
+                    else
+                    {
+                        CompareIndexer(info, object1, object2, breadCrumb);
+                        continue; ;
+                    }
+
+                    bool object1IsParent = objectValue1 != null && (objectValue1 == object1 || _parents.Contains(objectValue1));
+                    bool object2IsParent = objectValue2 != null && (objectValue2 == object2 || _parents.Contains(objectValue2));
+
+                    //Skip properties where both point to the corresponding parent
+                    if (IsClass(info.PropertyType)
+                        && (object1IsParent && object2IsParent))
+                    {
+                        continue;
+                    }
+
+                    currentCrumb = AddBreadCrumb(breadCrumb, info.Name, string.Empty, -1);
+
+                    Compare(objectValue1, objectValue2, currentCrumb);
+
+                    }
+                catch (Exception)
+                { 
+                    if (!IgnoreIndexersWhichCantBeCompared)
+                            throw;
                 }
-                else
-                {
-                    CompareIndexer(info, object1, object2, breadCrumb);
-                    continue; ;
-                }
-
-                bool object1IsParent = objectValue1 != null && (objectValue1 == object1 || _parents.Contains(objectValue1));
-                bool object2IsParent = objectValue2 != null && (objectValue2 == object2 || _parents.Contains(objectValue2));
-
-                //Skip properties where both point to the corresponding parent
-                if (IsClass(info.PropertyType)
-                    && (object1IsParent && object2IsParent))
-                {
-                    continue;
-                }
-
-                currentCrumb = AddBreadCrumb(breadCrumb, info.Name, string.Empty, -1);
-
-                Compare(objectValue1, objectValue2, currentCrumb);
 
                 if (Differences.Count >= MaxDifferences)
                     return;
