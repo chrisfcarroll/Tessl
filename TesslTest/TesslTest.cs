@@ -220,6 +220,39 @@ namespace TesslTest
             //
             Assert.AreEqual<string>( expected, actual );
         }
+
+        [TestMethod()]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ConfigurationModeShouldThrowIfCalledTwiceWithSameValues()
+        {
+            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
+            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
+            //
+            // Should throw
+        }
+
+        [TestMethod()]
+        [ExpectedException( typeof( InvalidOperationException ) )]
+        public void ConfigurationModeShouldThrowIfCalledTwiceWithDifferentValues()
+        {
+            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
+            Tessl.ConfigurationMode= Tessl.ConfigurationType.Showtime;
+            //
+            // Should throw
+        }
+
+        [TestMethod()]
+        public void TestModeShouldCallMocksOrStubs()
+        {
+            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
+
+            //
+            DateTime d = Tessl.New<DateTime>();
+            //
+            Assert.AreNotEqual<Type>( typeof( DateTime ), d.GetType() );
+
+
+        }
     }
 }
 

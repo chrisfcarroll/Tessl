@@ -8,6 +8,37 @@ namespace unforgettablemeuk
 {
     public static class Tessl
     {
+        public enum ConfigurationType
+        {
+            Showtime=0,
+            Test=1
+        }
+
+        public static ConfigurationType ConfigurationMode
+        {
+            get { return _mode; }
+            set 
+            {
+                if ( _implementation==null )
+                {
+                    lock ( instanceLock )
+                    {
+                        if ( _implementation == null )
+                        {
+                            _implementation= new object();
+                            _mode= value;
+                        }
+                    }
+                } else
+                {
+                    throw new InvalidOperationException( "Tessl has already been instantiated, so the mode can no longer be set." );
+                }
+            }
+        }
+        private static ConfigurationType _mode;
+        private static object _implementation;
+        private static object instanceLock = new object();
+
         public static T New<T>() where T : new()
         {
             return new T();
