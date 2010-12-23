@@ -1,4 +1,4 @@
-﻿using unforgettablemeuk;
+﻿using Unforgettablemeuk;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -44,12 +44,14 @@ namespace TesslTest
         //{
         //}
         //
+
         //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
+        [TestInitialize()]
+        public void MyTestInitialize()
+        {
+            Tessl.deconfigure();
+        }
+        
         //Use TestCleanup to run code after each test has run
         //[TestCleanup()]
         //public void MyTestCleanup()
@@ -176,7 +178,7 @@ namespace TesslTest
             DateTime expected = DateTime.FromFileTime( ft );
 
             //
-            DateTime actual = Tessl.Build<DateTime>( new Func<long,DateTime>(DateTime.FromFileTime), ft );
+            DateTime actual = Tessl.From<DateTime>( new Func<long,DateTime>(DateTime.FromFileTime), ft );
 
             //
             var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
@@ -196,7 +198,7 @@ namespace TesslTest
             DateTime expected = DateTime.FromFileTime( ft );
 
             //
-            DateTime actual = Tessl.Build<DateTime,long>( new Func<long, DateTime>( DateTime.FromFileTime ), ft );
+            DateTime actual = Tessl.From<long,DateTime>( new Func<long, DateTime>( DateTime.FromFileTime ), ft );
 
             //
             var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
@@ -215,7 +217,7 @@ namespace TesslTest
             String expected = then.ToString( "G", DateTimeFormatInfo.CurrentInfo );
 
             //
-            string actual = Tessl.Build<string, string, DateTimeFormatInfo>( then.ToString, "G", DateTimeFormatInfo.CurrentInfo );
+            string actual = Tessl.From<string, DateTimeFormatInfo, string>( then.ToString, "G", DateTimeFormatInfo.CurrentInfo );
 
             //
             Assert.AreEqual<string>( expected, actual );
@@ -225,8 +227,8 @@ namespace TesslTest
         [ExpectedException(typeof(InvalidOperationException))]
         public void ConfigurationModeShouldThrowIfCalledTwiceWithSameValues()
         {
-            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
-            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
+            Tessl.Configuration= new TesslProductionImplementation();
+            Tessl.Configuration= new TesslProductionImplementation();
             //
             // Should throw
         }
@@ -235,23 +237,38 @@ namespace TesslTest
         [ExpectedException( typeof( InvalidOperationException ) )]
         public void ConfigurationModeShouldThrowIfCalledTwiceWithDifferentValues()
         {
-            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
-            Tessl.ConfigurationMode= Tessl.ConfigurationType.Showtime;
+            Tessl.Configuration= new TesslProductionImplementation();
+            Tessl.Configuration= new Moq.Mock<ITessl>().Object;
             //
             // Should throw
         }
 
         [TestMethod()]
-        public void TestModeShouldCallMocksOrStubs()
+        public void TestModeShouldSwapOutProductionImplementation()
         {
-            Tessl.ConfigurationMode= Tessl.ConfigurationType.Test;
+            Tessl.Configuration= new Moq.Mock<ITessl>().Object;
+
+            // Failure to create still counts as a succcess.
+            try
+            {
+                DateTime d = Tessl.New<DateTime>();
+                Assert.AreNotEqual<Type>( typeof( DateTime ), d.GetType() );
+            } catch ( Exception ) { }
+
+        }
+        [TestMethod()]
+        public void TestModeShouldReturnSpecifiedMockObjects()
+        {
+            //Create a moq object with expected behaviour
+            var moonLanding = new DateTime(1969, 07, 21);
+            var moqDependencies = new Moq.Mock<ITessl>();
+            moqDependencies.Setup( t => t.New<DateTime>() ).Returns( moonLanding );
 
             //
+            Tessl.Configuration= (ITessl)moqDependencies.Object;
             DateTime d = Tessl.New<DateTime>();
             //
-            Assert.AreNotEqual<Type>( typeof( DateTime ), d.GetType() );
-
-
+            Assert.AreEqual<DateTime>( moonLanding, d );
         }
     }
 }
