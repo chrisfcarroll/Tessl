@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 
 namespace TesslTest
 {
@@ -61,17 +62,18 @@ namespace TesslTest
         public void NewShouldConstructNewObjectWhenInStandardModeTest()
         {
             object expected = new object();
+            //
             object actual = Tessl.New<object>();
             //
             var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
-            //
             Assert.IsTrue(comparer.Compare(actual, expected), comparer.DifferencesString);
 
             //try a class with plenty of fields
             var expected2 = new System.Diagnostics.ProcessStartInfo();
-            var actual2 = Tessl.New<System.Diagnostics.ProcessStartInfo>();
-            comparer.IgnoreIndexersWhichCantBeCompared = true;
             //
+            var actual2 = Tessl.New<System.Diagnostics.ProcessStartInfo>();
+            //
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
             Assert.IsTrue( comparer.Compare(expected2, actual2), comparer.DifferencesString);
         }
 
@@ -79,10 +81,10 @@ namespace TesslTest
         public void NewWith1ParameterShouldConstructNewObjectWhenInStandardModeTest()
         {
             decimal expected = new decimal(123.45);
+            //
             decimal actual   = Tessl.New<decimal, double>( 123.45 );
             //
             var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
-            //
             Assert.IsTrue(comparer.Compare(actual, expected), comparer.DifferencesString);
             Assert.AreEqual<decimal>(expected, actual);
 
@@ -100,16 +102,16 @@ namespace TesslTest
         [TestMethod()]
         public void NewWith2ParametersShouldConstructNewObjectWhenInStandardModeTest()
         {
-            //try a class with plenty of fields
+            //
             string filename = "filename";
             string args = "args";
             var expected2 = new System.Diagnostics.ProcessStartInfo( filename, args );
             var actual2 = Tessl.New<System.Diagnostics.ProcessStartInfo, string, string>( filename, args );
-            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
 
-            comparer.IgnoreIndexersWhichCantBeCompared = true;
             //
-            Assert.IsTrue(comparer.Compare(expected2, actual2), comparer.DifferencesString);
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            Assert.IsTrue( comparer.Compare( expected2, actual2 ), comparer.DifferencesString );
             Assert.AreEqual<string>( filename, expected2.FileName );
             Assert.AreEqual<string>( filename, actual2.FileName );
             Assert.AreEqual<string>( args, expected2.Arguments );
@@ -119,7 +121,7 @@ namespace TesslTest
         [TestMethod()]
         public void NewWith4ParametersShouldConstructNewObjectWhenInStandardModeTest()
         {
-            //try a class with plenty of fields
+            //
             var expected = new DateTime( 
                                 2000, 
                                 1, 
@@ -131,10 +133,9 @@ namespace TesslTest
                                 2, 
                                 Tessl.New<System.Globalization.GregorianCalendar, System.Globalization.GregorianCalendarTypes>(System.Globalization.GregorianCalendarTypes.Localized));
 
-            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
-
-            comparer.IgnoreIndexersWhichCantBeCompared = true;
             //
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
             Assert.IsTrue( comparer.Compare( expected, actual ), comparer.DifferencesString );
             Assert.AreEqual<int>( 2000,  actual.Year);
             Assert.AreEqual<int>( 1, actual.Month);
@@ -159,14 +160,66 @@ namespace TesslTest
                     CreateNoWindow=true,
                     Domain="Domain"
                 });
+
+            //
             var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
             comparer.IgnoreIndexersWhichCantBeCompared = true;
-            //
             Assert.IsTrue( comparer.Compare( expected, actual ), comparer.DifferencesString );
             Assert.AreEqual<string>( "Domain", actual.Domain );
         }
 
+        [TestMethod()]
+        public void FactoryMethodShouldWorkWhenInStandardModeTest()
+        {
+            DateTime then = DateTime.Now;
+            long ft = then.ToFileTime();
+            DateTime expected = DateTime.FromFileTime( ft );
 
+            //
+            DateTime actual = Tessl.Build<DateTime>( new Func<long,DateTime>(DateTime.FromFileTime), ft );
+
+            //
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            Assert.IsTrue( comparer.Compare( expected, actual ), comparer.DifferencesString );
+            Assert.AreEqual<int>( then.Year, actual.Year );
+            Assert.AreEqual<int>( then.Month, actual.Month );
+            Assert.AreEqual<int>( then.Day, actual.Day );
+            Assert.IsTrue( expected.CompareTo( actual ) == 0, "Expected CompareTo() to return 0" );
+        }
+
+        [TestMethod()]
+        public void TypedFactoryMethodWith1ParamShouldWorkWhenInStandardModeTest()
+        {
+            DateTime then = DateTime.Now;
+            long ft = then.ToFileTime();
+            DateTime expected = DateTime.FromFileTime( ft );
+
+            //
+            DateTime actual = Tessl.Build<DateTime,long>( new Func<long, DateTime>( DateTime.FromFileTime ), ft );
+
+            //
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            Assert.IsTrue( comparer.Compare( expected, actual ), comparer.DifferencesString );
+            Assert.AreEqual<int>( then.Year, actual.Year );
+            Assert.AreEqual<int>( then.Month, actual.Month );
+            Assert.AreEqual<int>( then.Day, actual.Day );
+            Assert.IsTrue( expected.CompareTo( actual ) == 0, "Expected CompareTo() to return 0" );
+        }
+
+        [TestMethod()]
+        public void TypedFactoryMethodWith2ParamsShouldWorkWhenInStandardModeTest()
+        {
+            DateTime then = DateTime.Now;
+            String expected = then.ToString( "G", DateTimeFormatInfo.CurrentInfo );
+
+            //
+            string actual = Tessl.Build<string, string, DateTimeFormatInfo>( then.ToString, "G", DateTimeFormatInfo.CurrentInfo );
+
+            //
+            Assert.AreEqual<string>( expected, actual );
+        }
     }
 }
 

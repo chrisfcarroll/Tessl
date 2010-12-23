@@ -43,5 +43,30 @@ namespace unforgettablemeuk
             return prototype;
         }
 
+        public static T Build<T>( Delegate method, params object[] args )
+        {
+            return (T)method.DynamicInvoke( args );
+        }
+
+        public static TResult Build<TResult, P1>( Func<P1, TResult> method, P1 p1 )
+        {
+            return (TResult)method( p1 );
+        }
+
+        public static TResult Build<TResult, P1, P2>( Func<P1, P2, TResult> method, P1 p1, P2 p2 )
+        {
+            return (TResult)method( p1, p2 );
+        }
+
+        public static TResult Build<TResult, P1, P2, P3>( Func<P1, P2, P3, TResult> method, P1 p1, P2 p2, P3 p3 )
+        {
+            return (TResult)method( p1, p2, p3 );
+        }
+
+        public static TResult Build<TResult, P1, P2, P3, P4>( Func<P1, P2, P3, P4, TResult> method, P1 p1, P2 p2, P3 p3, P4 p4 )
+        {
+            return (TResult)method( p1, p2, p3, p4 );
+        }
+
     }
 }
