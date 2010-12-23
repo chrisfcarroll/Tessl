@@ -8,8 +8,8 @@
     <ProjectGuid>{0BF340C1-8D26-4681-BC3B-006221A67EBE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Unforgettablemeuk</RootNamespace>
-    <AssemblyName>Unforgettablemeuk.Tessl</AssemblyName>
+    <RootNamespace>CafeEncounterNet</RootNamespace>
+    <AssemblyName>Tessl</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

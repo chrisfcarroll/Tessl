@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace Unforgettablemeuk
+namespace CafeEncounterNet
 {
     public static class Tessl
     {

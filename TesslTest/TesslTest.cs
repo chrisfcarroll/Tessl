@@ -1,4 +1,4 @@
-﻿using Unforgettablemeuk;
+﻿using CafeEncounterNet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -191,7 +191,7 @@ namespace TesslTest
         }
 
         [TestMethod()]
-        public void TypedFactoryMethodWith1ParamShouldWorkWhenInStandardModeTest()
+        public void FromWith1ParamShouldWorkWhenInStandardModeTest()
         {
             DateTime then = DateTime.Now;
             long ft = then.ToFileTime();
@@ -211,7 +211,7 @@ namespace TesslTest
         }
 
         [TestMethod()]
-        public void TypedFactoryMethodWith2ParamsShouldWorkWhenInStandardModeTest()
+        public void FromWith2ParamsShouldWorkWhenInStandardModeTest()
         {
             DateTime then = DateTime.Now;
             String expected = then.ToString( "G", DateTimeFormatInfo.CurrentInfo );
