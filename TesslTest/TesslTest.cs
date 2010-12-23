@@ -96,6 +96,77 @@ namespace TesslTest
             Assert.AreEqual<string>(aFilename, expected2.FileName);
             Assert.AreEqual<string>(aFilename, actual2.FileName);
         }
+
+        [TestMethod()]
+        public void NewWith2ParametersShouldConstructNewObjectWhenInStandardModeTest()
+        {
+            //try a class with plenty of fields
+            string filename = "filename";
+            string args = "args";
+            var expected2 = new System.Diagnostics.ProcessStartInfo( filename, args );
+            var actual2 = Tessl.New<System.Diagnostics.ProcessStartInfo, string, string>( filename, args );
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            //
+            Assert.IsTrue(comparer.Compare(expected2, actual2), comparer.DifferencesString);
+            Assert.AreEqual<string>( filename, expected2.FileName );
+            Assert.AreEqual<string>( filename, actual2.FileName );
+            Assert.AreEqual<string>( args, expected2.Arguments );
+            Assert.AreEqual<string>( args, actual2.Arguments );
+        }
+
+        [TestMethod()]
+        public void NewWith4ParametersShouldConstructNewObjectWhenInStandardModeTest()
+        {
+            //try a class with plenty of fields
+            var expected = new DateTime( 
+                                2000, 
+                                1, 
+                                2, 
+                                new System.Globalization.GregorianCalendar( System.Globalization.GregorianCalendarTypes.Localized ) );
+            var actual = Tessl.New<DateTime, int, int, int, System.Globalization.GregorianCalendar>(
+                                2000, 
+                                1, 
+                                2, 
+                                Tessl.New<System.Globalization.GregorianCalendar, System.Globalization.GregorianCalendarTypes>(System.Globalization.GregorianCalendarTypes.Localized));
+
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            //
+            Assert.IsTrue( comparer.Compare( expected, actual ), comparer.DifferencesString );
+            Assert.AreEqual<int>( 2000,  actual.Year);
+            Assert.AreEqual<int>( 1, actual.Month);
+            Assert.AreEqual<int>( 2, actual.Day);
+            Assert.IsTrue( expected.CompareTo(actual) == 0, "Expected CompareTo() to return 0");
+        }
+
+        [TestMethod()]
+        public void InitShouldInitialiseObjectWhenInStandardModeTest()
+        {
+            System.Diagnostics.ProcessStartInfo expected= 
+                new System.Diagnostics.ProcessStartInfo
+                {
+                    Arguments="Args",
+                    CreateNoWindow=true,
+                    Domain="Domain"
+                };
+            System.Diagnostics.ProcessStartInfo actual = Tessl.Init<System.Diagnostics.ProcessStartInfo>(
+                new System.Diagnostics.ProcessStartInfo
+                {
+                    Arguments="Args",
+                    CreateNoWindow=true,
+                    Domain="Domain"
+                });
+            var comparer = new KellermanSoftware.CompareNetObjects.CompareObjects();
+            comparer.IgnoreIndexersWhichCantBeCompared = true;
+            //
+            Assert.IsTrue( comparer.Compare( expected, actual ), comparer.DifferencesString );
+            Assert.AreEqual<string>( "Domain", actual.Domain );
+        }
+
+
     }
 }
 
