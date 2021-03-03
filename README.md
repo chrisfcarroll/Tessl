@@ -2,8 +2,7 @@
 
 It is intended to provide the simplest possible service locator that can make a component with dependencies testable. It is suitable for:
 
-- Making legacy code with hard-wired dependencies testable with minimal change. 
-    - Hard-wired dependencies can be replaced with tesslated dependencies by a relatively simple search and replace.
+- Making legacy code with hard-wired dependencies testable with minimal change. Hard-wired dependencies can be replaced with tesslated dependencies by a relatively simple search and replace.
 - Writing testing code in the absence of a dependency injection framework, and with the least possible configuration - none at all.
 
 ### How Simple?
